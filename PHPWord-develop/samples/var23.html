@@ -1,0 +1,395 @@
+&lt;html&gt;
+<br />&lt;head&gt; &lt;meta charset="utf-8"/&gt; &lt;/head&gt;
+<br />
+<table style="height: 2554px; width: 813px; border: 0px; padding: 15px;">
+    <tbody>
+        <tr>
+            <td>#set( $Integer = 0 ) #set( $dispute.factKinderen_NumChildrenUnder18 = "0" )
+                <h2>Dit is het scheidingsplan van:</h2>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>
+                    <br />${dispute.appellants.get(0).firstName} ${dispute.appellants.get(0).lastName},
+                    <br /> Wonend op dit adres:
+                    <br /> ${dispute.intakes.get(0).Streetname} ${dispute.intakes.get(0).Housenumber} ${dispute.intakes.get(0).HouseAddlnumber}
+                    <br />${dispute.intakes.get(0).Postcode} ${dispute.intakes.get(0).Place}
+                    <br />
+                    <br /> BSN: ${dispute.intakes.get(0).BSN}
+                    <br /> Geboortedatum: ${date.format('dd-MM-yyyy',$dispute.intakes[0].birthdate)}
+                    <br /> Geboorteplaats: ${dispute.intakes[0].Placeofbirth}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>
+                    <br />en
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>${dispute.appellees.get(0).firstName} ${dispute.appellees.get(0).lastName},
+                    <br /> Wonend op dit adres:
+                    <br /> ${dispute.intakes.get(1).Streetname} ${dispute.intakes.get(1).Housenumber} ${dispute.intakes.get(1).HouseAddlnumber}
+                    <br />${dispute.intakes.get(1).Postcode} ${dispute.intakes.get(1).Place}
+                    <br />
+                    <br /> BSN: ${dispute.intakes.get(1).BSN}
+                    <br /> Geboortedatum: ${date.format('dd-MM-yyyy',$dispute.intakes[1].birthdate)}
+                    <br /> Geboorteplaats: ${dispute.intakes[1].Placeofbirth}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>#*marital status and agreements*#
+                <br />#if(($dispute.intakes[0].maritalstatus=="Getrouwd")&amp;&amp;($dispute.intakes[0].maritalstatus_agreement=="Ja"))
+                <br />Wij zijn onder huwelijkse voorwaarden getrouwd#if(${dispute.factCommuniceren_marriageDate}) sinds ${date.format('dd-MM-yyyy',$dispute.factCommuniceren_marriageDate)}#end.
+                <br />
+                <br />#end #if(($dispute.intakes[0].maritalstatus=="Getrouwd")&amp;&amp;($dispute.intakes[0].maritalstatus_agreement=="Nee"))
+                <br />
+                <br />Wij zijn in gemeenschap van goederen getrouwd#if(${dispute.factCommuniceren_marriageDate}) sinds ${date.format('dd-MM-yyyy',$dispute.factCommuniceren_marriageDate)}#end.
+                <br />
+                <br />#end #if(($dispute.intakes[0].maritalstatus=="Geregistreerd partnerschap")&amp;&amp;($dispute.intakes[0].maritalstatus_agreement=="Ja"))
+                <br />
+                <br />Wij hebben een geregistreerd partnerschap onder partnerschapvoorwaarden#if(${dispute.factCommuniceren_marriageDate}) sinds ${date.format('dd-MM-yyyy',$dispute.factCommuniceren_marriageDate)}#end.
+                <br />
+                <br />#end #if(($dispute.intakes[0].maritalstatus=="Geregistreerd partnerschap")&amp;&amp;($dispute.intakes[0].maritalstatus_agreement=="Nee"))
+                <br />
+                <br />"Wij hebben een geregistreerd partnerschap#if(${dispute.factCommuniceren_marriageDate}) sinds ${date.format('dd-MM-yyyy',$dispute.factCommuniceren_marriageDate)}#end.
+                <br />
+                <br />#end #if($dispute.intakes[0].maritalstatus=="Samenlevingscontract")
+                <br />
+                <br />Wij hebben een samenlevingscontract#if(${dispute.factCommuniceren_marriageDate}) sinds ${date.format('dd-MM-yyyy',$dispute.factCommuniceren_marriageDate)}#end.
+                <br />
+                <br />#end #if($dispute.intakes[0].maritalstatus=="Samenwonend")
+                <br />
+                <br />Wij wonen samen#if(${dispute.factCommuniceren_marriageDate}) sinds ${date.format('dd-MM-yyyy',$dispute.factCommuniceren_marriageDate)}#end.
+                <br />
+                <br />#end</td>
+        </tr>
+        <tr>
+            <td>
+                <p>#if($Integer.parseInt($dispute.factKinderen_NumChildrenUnder18)&gt;0)
+                    <br />Wij hebben samen de volgende kinderen:
+                    <br />- ${dispute.factKinderen_nameChild1}, geboren op $date.format('dd-MM-yyyy',$dispute.factKinderen_dateOfBirthChild1) in ${dispute.factKinderen_placeOfBirthChild1}, BSN: ${dispute.factKinderen_burgerServiceNumberChild1}
+                    <br />#if($Integer.parseInt($dispute.factKinderen_NumChildrenUnder18)&gt;1)- ${dispute.factKinderen_nameChild2}, geboren op $date.format('dd-MM-yyyy',$dispute.factKinderen_dateOfBirthChild2) in ${dispute.factKinderen_placeOfBirthChild2}, BSN: ${dispute.factKinderen_burgerServiceNumberChild1}#end
+                    <br />#if($Integer.parseInt($dispute.factKinderen_NumChildrenUnder18)&gt;2)- ${dispute.factKinderen_nameChild3}, geboren op $date.format('dd-MM-yyyy', $dispute.factKinderen_dateOfBirthChild3) in ${dispute.factKinderen_placeOfBirthChild3}, BSN: ${dispute.factKinderen_burgerServiceNumberChild1}#end
+                    <br />#if($Integer.parseInt($dispute.factKinderen_NumChildrenUnder18)&gt;3)- ${dispute.factKinderen_nameChild4}, geboren op $date.format('dd-MM-yyyy', $dispute.factKinderen_dateOfBirthChild4) in ${dispute.factKinderen_placeOfBirthChild4}, BSN: ${dispute.factKinderen_burgerServiceNumberChild1}#end #end&#160;</p>
+            </td>
+        </tr>
+        <tr>
+            <td>#*statements for the marital status and kids and agreements*#
+                <p>#if($dispute.intakes[0].maritalstatus=="Getrouwd") We hebben geconcludeerd dat het huwelijk duurzaam ontwricht is. Daarom willen we ons huwelijk be indigen en hebben we daarover de volgende afspraken gemaakt. Deze afspraken gelden alleen wanneer de echtscheiding door de rechtbank wordt uitgesproken en ingeschreven wordt in de registers van de burgerlijke stand.
+                    <br />#end
+                    <br />#if(($dispute.intakes[0].maritalstatus=="Geregistreerd partnerschap")&amp;&amp;(($Integer.parseInt($dispute.factKinderen_NumChildrenUnder18)&gt;0))) We hebben geconcludeerd dat het partnerschap duurzaam ontwricht is. Daarom willen we ons geregistreerd partnerschap be&#235;indigen en hebben we daarover de volgende afspraken gemaakt. Deze afspraken gelden alleen wanneer de scheiding door de rechtbank wordt uitgesproken en ingeschreven wordt in de registers van de burgerlijke stand.
+                    <br />#end
+                    <br />#if(($dispute.intakes[0].maritalstatus=="Geregistreerd partnerschap")&amp;&amp;(($Integer.parseInt($dispute.factKinderen_NumChildrenUnder18)==0))) We hebben geconcludeerd dat het partnerschap duurzaam ontwricht is. Daarom willen we ons geregistreerd partnerschap be&#235;indigen en hebben we daarover de volgende afspraken gemaakt. Deze afspraken gelden alleen wanneer de scheiding ingeschreven wordt in de registers van de burgerlijke stand.
+                    <br />#end
+                    <br />#if($dispute.intakes[0].maritalstatus=="Samenlevingscontract") Wij willen ons samenlevingscontract be&#235;indigen en hebben daarover de volgende afspraken gemaakt.
+                    <br />#end #if($dispute.intakes[0].maritalstatus=="Samenwonend") Wij willen niet langer samenwonen en hebben daarover de volgende afspraken gemaakt.
+                    <br />#end</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h3>Afspraken</h3>
+            </td>
+        </tr>
+        <tr>
+            <td>#if($Integer.parseInt($dispute.factKinderen_NumChildrenUnder18)&gt;0)
+                <h4>De kinderen</h4>
+                <p>We hebben als ouders van ${dispute.factKinderen_nameChild1}#if($Integer.parseInt($dispute.factKinderen_NumChildrenUnder18)&gt;1), ${dispute.factKinderen_nameChild2}#end #if($Integer.parseInt($dispute.factKinderen_NumChildrenUnder18)&gt;2), ${dispute.factKinderen_nameChild3}#end #if($Integer.parseInt($dispute.factKinderen_NumChildrenUnder18)&gt;3), ${dispute.factKinderen_nameChild4}#end afspraken gemaakt over de kinderen. Deze afspraken staan in het aangehechte ouderschapsplan.
+                    <br />#end
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Wonen</h4>
+                <p><span style="text-decoration: underline;">Woning</span></p>
+                <p>We vinden het belangrijk dat we tot een goede oplossing komen over waar ieder van ons gaat wonen. Daarom spreken we af dat ${dispute.dialogText_WonenWoning}
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+ <!--      
+        <tr>
+            <td>
+                <h4>Bezittingen</h4>
+                <p><span style="text-decoration: underline;">Geld</span></p>
+                <p>We vinden het belangrijk dat we ons allebei goed voelen over hoe we het (spaar)geld verdelen. Daarom spreken we af dat ${dispute.dialogText_BezittingenGeld}</p>
+                <p><span style="text-decoration: underline;">Schulden</span></p>
+                <p>We vinden het belangrijk dat we ons allebei goed voelen over hoe we de schulden delen. Daarom spreken we af dat ${dispute.dialogText_BezittingenSchulden}</p>
+                <p><span style="text-decoration: underline;">Bijzondere spullen</span></p>
+                <p>Sommige spullen hebben een speciale betekenis. We houden hier rekening mee bij het verdelen van onze spullen. Daarom spreken we af dat ${dispute.dialogText_BezittingenBijzonderespullen}</p>
+                <p><span style="text-decoration: underline;">Spullen</span></p>
+                <p>We willen de spullen op een eerlijke manier verdelen. Hier willen we duidelijke afspraken over maken. Daarom spreken we af dat ${dispute.dialogText_BezittingenSpullen}
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+-->
+<!-- changed the previous block to this to avoid different font issue in pdf -->
+        <tr>
+            <td>
+                <h4>Bezittingen</h4>
+                <p><span style="text-decoration: underline;">Geld</span></p>
+                <p>We vinden het belangrijk dat we ons allebei goed voelen over hoe we het (spaar)geld verdelen. Daarom spreken we af dat ${dispute.dialogText_BezittingenGeld}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p><span style="text-decoration: underline;">Schulden</span></p>
+                <p>We vinden het belangrijk dat we ons allebei goed voelen over hoe we de schulden delen. Daarom spreken we af dat ${dispute.dialogText_BezittingenSchulden}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p><span style="text-decoration: underline;">Bijzondere spullen</span></p>
+                <p>Sommige spullen hebben een speciale betekenis. We houden hier rekening mee bij het verdelen van onze spullen. Daarom spreken we af dat ${dispute.dialogText_BezittingenBijzonderespullen}</p>
+            </td>
+        </tr>        
+                <p><span style="text-decoration: underline;">Spullen</span></p>
+                <p>We willen de spullen op een eerlijke manier verdelen. Hier willen we duidelijke afspraken over maken. Daarom spreken we af dat ${dispute.dialogText_BezittingenSpullen}
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Inkomen</h4>
+                <p><span style="text-decoration: underline;">Alimentatie</span></p>
+                <p>We vinden het belangrijk dat ieder van ons een bestaan kan opbouwen na de scheiding. We begrjipen dat we verantwoordelijkheden naar elkaar hebben, soms met partneralimentatie. Daarom spreken we af dat... ${dispute.dialogText_InkomenAlimentatie}
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Communiceren</h4>
+                <p><span style="text-decoration: underline;">Familie en vrienden</span>
+                    <br />
+                    <br />We willen dat het duidelijk is hoe we met contact met familie en vrienden omgaan. Daarom spreken we af dat ${dispute.dialogText_CommunicerenFamilieenvrienden}
+                    <br />
+                    <br /><span style="text-decoration: underline;">Evaluatie</span>
+                    <br />
+                    <br />We willen dat het duidelijk is hoe we met veranderingen omgaan. Daarom spreken we af dat ${dispute.dialogText_CommunicerenEvaluatie}
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Fiscale afspraken</h4>
+                <p>We spreken af dat we tot 1 januari volgend jaar fiscaal partners zijn. We zullen tot dat moment in overleg met elkaar de aangiftes inkomstenbelasting (laten) doen. De belastingaanslagen die betrekking hebben op deze periode komen voor rekening van beiden voor de helft. Eventuele teruggaven over deze periode zullen wij ook delen.</p>
+                <p>Vanaf 1 januari volgend jaar zullen we eigen aangifte (laten) doen.</p>
+                <p>Als er een geschil ontstaat met de belastingdienst over aanslagen inkomstenbelasting over de jaren dat we fiscaal partner waren, spreken we af dat wij dit geschil in overleg met elkaar (eventueel met behulp van een fiscaal adviseur) zullen proberen op te lossen.
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Kwijting en vrijwaring</h4>
+                <p>We verklaren dat wij de bezittingen en schulden evenwichtig en op een redelijke manier hebben verdeeld. Wij begrijpen dat de gemaakte afspraken bindend zijn en wij hierop niet meer kunnen terugkomen.
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Aldus overeengekomen en ondertekend in viervoud,</p>
+                <table border="0" width="90%">
+                    <tbody>
+                        <tr>
+                            <td>te ...................................................</td>
+                            <td>te ...................................................</td>
+                        </tr>
+                        <tr>
+                            <td>op datum ........................................</td>
+                            <td>op datum ........................................</td>
+                        </tr>
+                        <tr>
+                            <td>.......................................................</td>
+                            <td>........................................................</td>
+                        </tr>
+                        <tr>
+                            <td>(Naam)</td>
+                            <td>(Naam)</td>
+                        </tr>
+                        <tr>
+                            <td>......................................................</td>
+                            <td>........................................................</td>
+                        </tr>
+                        <tr>
+                            <td>(Handtekening)</td>
+                            <td>(Handtekening)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </tbody>
+</table>
+#*children agreement, shown only if they have children*# #if($Integer.parseInt($dispute.factKinderen_NumChildrenUnder18)&gt;0)
+<table style="height: 184px; width: 100%; border: 0; padding: 15px; cellpadding: 10px;">
+    <tbody>
+        <tr>
+            <td>
+                <h2><br />Ouderschapsplan</h2>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>In dit ouderschapsplan hebben we afspraken gemaakt over de kinderen. We hebben de afspraken met de kinderen besproken, zoveel dat mogelijk was.</p>
+                <p>We vinden het belangrijk dat het contact met onze kinderen zo min mogelijk door de scheiding wordt be&#239;nvloed.</p>
+                <p>We hebben gezamenlijk het gezag over de kinderen. Dit blijft zo na de scheiding.
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Omgang</h4>
+                <p>We vinden het belangrijk dat onze kinderen een goed en stabiel thuis hebben. Daarom spreken we af dat ${dispute.dialogText_KinderenOmgang}
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Bijzondere dagen</h4>
+                <p>We vinden het belangrijk dat onze kinderen vakanties en feestdagen met beide ouders kunnen beleven. Daarom spreken we af dat ${dispute.dialogText_KinderenBijzonderedagen}
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Informatie</h4>
+                <p>We willen allebei op de hoogte blijven van de belangrijke zaken uit het leven van onze kinderen, ook als ze bij de andere ouder zijn. Zoals wat er op school gebeurt. Daarom spreken we af dat ${dispute.dialogText_KinderenInformatie}
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Beslissingen</h4>
+                <p>We blijven samen beslissen over belangrijke zaken in het leven van onze kinderen. Daarom spreken we af dat ${dispute.dialogText_KinderenBeslissingen}
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Adres</h4>
+                <p>Waar de kinderen staan ingeschreven heeft bepaalde financiele gevolgen. Daarom spreken we af dat ${dispute.dialogText_KinderenAdres}
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Kinderalimentatie</h4>
+                <p>Om de kinderen financieel zoveel mogelijk hetzelfde te kunnen bieden als nu, spreken we af dat ${dispute.dialogText_InkomenAlimentatie}
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Verzekering</h4>
+                <p>We zorgen ervoor dat de kinderen tegen wettelijke aansprakelijkheid zijn verzekerd.
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>School</h4>
+                <p>Een keuze voor een (type) school maken we gezamenlijk. We zullen de kinderen afhankelijk van hun leeftijd en de omstandigheden betrekken bij deze keuze. We zullen betrokken blijven bij de voortgang op de school.</p>
+                <p>We zullen de informatie- en ouderavonden (bij voorkeur) gezamenlijk of in onderling overleg apart/alleen bezoeken.
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Medische zaken</h4>
+                <p>We nemen zo veel mogelijk samen beslissingen over medische zaken. Als er acute medische problemen zijn, dan zal de ouder bij wie het kind is, de noodzakelijke maatregelen treffen en de andere ouder zo spoedig mogelijk informeren.</p>
+                <p>We zorgen ervoor dat de kinderen naar de tandarts gaan.</p>
+                <p>We zorgen ervoor dat de kinderen tegen ziektekosten verzekerd zijn. De eventuele premie hiervoor zal worden voldaan door de (vader of moeder).</p>
+                <p>Ieder van de ouders heeft toegang tot een ziek kind dat verpleegd wordt.
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Contact familie</h4>
+                <p>De ene ouder zal contact tussen de kinderen en de familieleden van de andere ouder niet in de weg staan.</p>
+                <p>Na overlijden van een van ons zal de andere ouder zich inzetten om de band tussen de familie van de overleden ouder en de kinderen intact te laten en zoveel mogelijk stimuleren.
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>Aldus overeengekomen en ondertekend in viervoud,</p>
+
+            </td>
+        </tr>
+    </tbody>
+</table>
+#end
+<br />&lt;/html&gt;
+                <table border="0" width="90%">
+                    <tbody>
+                        <tr>
+                            <td>te ...................................................</td>
+                            <td>te ...................................................</td>
+                        </tr>
+                        <tr>
+                            <td>op datum ........................................</td>
+                            <td>op datum ........................................</td>
+                        </tr>
+                        <tr>
+                            <td>.......................................................</td>
+                            <td>.......................................................</td>
+                        </tr>
+                        <tr>
+                            <td>(Naam)</td>
+                            <td>(Naam)</td>
+                        </tr>
+                        <tr>
+                            <td>.......................................................</td>
+                            <td>.......................................................</td>
+                        </tr>
+                        <tr>
+                            <td>(Handtekening)</td>
+                            <td>(Handtekening)</td>
+                        </tr>
+                    </tbody>
+                </table>
