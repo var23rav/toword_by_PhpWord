@@ -1,4 +1,4 @@
-<?php
+<?php 
 // define('CUSTOMIZE_FOR_RWR', true);
 include_once 'Sample_Header.php';
 // necessary code from Sample_Header.php
@@ -164,10 +164,10 @@ for($r = 0; $r < count($addressSlip); $r++) { // Loop through rows
 }
 //***********************************************
 
-
+$docName = basename(__FILE__, '.php');
 
 // Save file
-echo write($phpWord, basename(__FILE__, '.php'), $writers);
+echo write($phpWord, $docName, $writers);
 // if( isset( $_POST['doc_name'] ) ) {
 //     // echo saveFileByVar23($phpWord, $_POST['doc_name'], $writers);
 //     echo write($phpWord, basename(__FILE__, '.php'), $writers);
@@ -186,7 +186,8 @@ if (!CLI) {
     include_once 'Sample_Footer.php';
 }
 
-
+$theExtractedFolder = lineBreakMSWordCompatibilityFix('results/' . $docName . '.docx' );
+compressTheFolderToDocx('results/');
 
 /*
 1) avoid broken open and close tags
@@ -217,4 +218,91 @@ function saveFileByVar23($phpWord, $filename, $writers)
 
     // return $result;
     return $filename;
+}
+
+
+function lineBreakMSWordCompatibilityFix($docName) {
+    $zip = new ZipArchive;
+    if( $zip->open($docName) === TRUE ) {
+        
+        // Extracting the docx file to new folder with name of file
+        $destFolder = rtrim($docName, '.docx');
+        deleteFolder($destFolder);
+        $zip->extractTo($destFolder);
+        $zip->close();
+
+        // Replacing all the #CRLF_BY_VAR23# which is added as the line break replacement with 
+        // word xml line break <w:br/>
+        $documentXmlFile = $destFolder . '/word/document.xml';
+        if( file_exists($documentXmlFile) ) {
+            $file_contents = file_get_contents($documentXmlFile);
+            $file_contents = str_replace("#CRLF_BY_VAR23#","<w:br/>",$file_contents);
+            file_put_contents($documentXmlFile,$file_contents);      
+        }
+        
+        // Recompressing the folder into .docx file
+        $filename = basename($docName, '.docx');
+       // Get real path for our folder
+        $rootPath = realpath('results/' . $filename);
+        // Initialize archive object
+        $zip = new ZipArchive();
+        $zip->open($filename  . '123.docx', ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+        // Create recursive directory iterator
+        /** @var SplFileInfo[] $files */
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($rootPath),
+            RecursiveIteratorIterator::LEAVES_ONLY
+        );
+
+        foreach ($files as $name => $file)
+        {
+            // Skip directories (they would be added automatically)
+            if (!$file->isDir())
+            {
+                // Get real and relative path for current file
+                $filePath = $file->getRealPath();
+                $relativePath = substr($filePath, strlen($rootPath) + 1);
+
+                // Add current file to archive
+                $zip->addFile($filePath, $relativePath);
+            }
+        }
+
+        // Zip archive will be created only after closing object
+        $zip->close();
+
+
+    } else {
+        echo  $docName . ' File extracition failed.';
+    }
+    return FALSE;
+}
+
+function deleteFolder($path)
+{
+    if (is_dir($path) === true)
+    {
+        $files = array_diff(scandir($path), array('.', '..'));
+
+        foreach ($files as $file)
+        {
+            deleteFolder(realpath($path) . '/' . $file);
+        }
+
+        return rmdir($path);
+    }
+
+    else if (is_file($path) === true)
+    {
+        return unlink($path);
+    }
+
+    return false;
+}
+
+function compressTheFolderToDocx($folderPath) {
+    $filname = rtrim($folderPath, '/') . 'docx';
+    $zip =  new ZipArchive();
+    $zip->open( $filname, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 }

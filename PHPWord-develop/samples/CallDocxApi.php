@@ -15,14 +15,13 @@ function httpPost($url,$params) {
   return $output;
  
 }
-
 // Work around phpword doesn't render html <br> tags
 function sanitizeTheHtmlDataForDoc($htmlData) {
     $htmlData = str_ireplace([
             '<br />',
             '<br/>',
             '<br>',
-        ], '<h7></h7>', $htmlData);//&#xA;&#xD;
+        ], '#CRLF_BY_VAR23#&#xA;&#xD;', $htmlData);//&#xA;&#xD;
     // $htmlData = br2nl($htmlData);
     return $htmlData;
 }
@@ -37,4 +36,4 @@ $params = array(
    'doc_name' => $docName,
 );
  
-echo httpPost("http://localhost/PHPWord-develop/samples/DocxApi.php",$params);
+echo httpPost("http://localhost/toword_by_PhpWord/PHPWord-develop/samples/DocxApi.php",$params);
