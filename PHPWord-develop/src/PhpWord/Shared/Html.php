@@ -131,7 +131,8 @@ class Html
 
             'tbody'     => array('Table',       $node,  $element,   $styles,    null,   'skipTbody',    true), //added to catch tbody in html.
             'tr'        => array('Table',       $node,  $element,   $styles,    null,   'addRow',       true),
-            'td'        => array('Table',       $node,  $element,   $styles,    null,   'addCell',      true),            
+            'td'        => array('Table',       $node,  $element,   $styles,    null,   'addCell',      true),
+            'span'      => array('Span',        $node,  null,       $styles,    null,    null,          null), //to catch inline span style changes
         );
 
         $newElement = null;
@@ -321,6 +322,22 @@ class Html
         // }
 
         return $newElement;
+    }
+
+    /**
+     * Parse span
+     *
+     * Changes the inline style when a Span element is found.
+     *
+     * @param type $node
+     * @param type $element
+     * @param array $styles
+     * @return type
+     */
+    private static function parseSpan($node, &$styles)
+    {
+        $styles['font'] = self::parseInlineStyle($node, $styles['font']);
+        return null;
     }
 
     /**

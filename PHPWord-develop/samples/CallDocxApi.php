@@ -15,25 +15,14 @@ function httpPost($url,$params) {
   return $output;
  
 }
-// Work around phpword doesn't render html <br> tags
-function sanitizeTheHtmlDataForDoc($htmlData) {
-    $htmlData = str_ireplace([
-            '<br />',
-            '<br/>',
-            '<br>',
-        ], '#CRLF_BY_VAR23#&#xA;&#xD;', $htmlData);//&#xA;&#xD;
-    // $htmlData = br2nl($htmlData);
-    return $htmlData;
-}
 
 
 $docName = isset($_GET['doc_name']) ? $_GET['doc_name'] : 'xda' ;
 
 $htmlContent = file_get_contents('mine.html');
-$sanitizedHtmlContent = sanitizeTheHtmlDataForDoc($htmlContent);
+
 $params = array(
-   'html_content' => $sanitizedHtmlContent,
+   'html_content' => $htmlContent,
    'doc_name' => $docName,
 );
- 
 echo httpPost("http://localhost/toword_by_PhpWord/PHPWord-develop/samples/DocxApi.php",$params);

@@ -7,15 +7,15 @@ $phpWord = new \PhpOffice\PhpWord\PhpWord();
 
 $section = $phpWord->addSection();
 
-// //------------------Header n Footer-----------------------
-// // Add header for all other pages
-// $subsequent = $section->addHeader();
-// // $subsequent->addText(htmlspecialchars('Subsequent pages in Section 1 will Have this!', ENT_COMPAT, 'UTF-8'));
+//------------------Header n Footer-----------------------
+// Add header for all other pages
+$subsequent = $section->addHeader();
+// $subsequent->addText(htmlspecialchars('Subsequent pages in Section 1 will Have this!', ENT_COMPAT, 'UTF-8'));
 
-// // Add footer
-// $footer = $section->addFooter();
-// $footer->addPreserveText(htmlspecialchars('Page {PAGE} of {NUMPAGES}.', ENT_COMPAT, 'UTF-8'), null, array('alignment' => 'center'));
-// //-----------------------------------------
+// Add footer
+$footer = $section->addFooter();
+$footer->addPreserveText(htmlspecialchars('Page {PAGE} of {NUMPAGES}.', ENT_COMPAT, 'UTF-8'), null, array('alignment' => 'center'));
+//-----------------------------------------
 
 
 

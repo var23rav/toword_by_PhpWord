@@ -1,59 +1,222 @@
 <?php 
-// define('CUSTOMIZE_FOR_RWR', true);
-include_once 'Sample_Header.php';
+
+define('BR_TAG_INDICATOR', '#CRLF_BY_VAR23#');
+// define('FOLDER_PATH', __DIR__ . '/results/');
+// define('DOCXFOLDER_SERVER_URL', 'http://localhost/toword_by_PhpWord/PHPWord-develop/samples/results/');
+define('FOLDER_PATH', '/home/vaisakh/modria/Rechtwijzer_API_Integration/RechtwijzerApi/RechtwijzerApi/static/files/');
+
+
+
+################################
+
+class DocxApiEnvironmentConstant
+{
+    const ENV_VARIABLE = 'ENV_ID';
+    const PRODUCTION   = 'prod';
+    const UAT          = 'uat';
+    const TESTING      = 'test';
+    const DEVELOPMENT  = 'dev';
+    const CONF         = 'conf';
+    const CONF_TEST    = 'conf_test';
+    const SANDBOX      = 'sandbox';
+}
+
+################################
+
+Class DocxApiStatusClass
+{
+
+    public static function getErrorDisplayFlag() {
+        // Show error all environment other than production
+        return getenv(DocxApiEnvironmentConstant::ENV_VARIABLE) != DocxApiEnvironmentConstant::PRODUCTION;
+    }
+
+    public static function getCurrentEnvironment() {
+        return getenv(DocxApiEnvironmentConstant::ENV_VARIABLE);
+    }
+}
+
+################################
+switch (DocxApiStatusClass::getCurrentEnvironment()) {
+    case DocxApiEnvironmentConstant::PRODUCTION :
+        define('DOCXFOLDER_SERVER_URL', 'https://rechtwijzer.modria.com/static/files/');
+        break;
+
+    case DocxApiEnvironmentConstant::UAT :
+        define('DOCXFOLDER_SERVER_URL', 'https://pat2-rechtwijzer.modria.com/static/files/');
+        break;
+
+    case DocxApiEnvironmentConstant::TESTING :
+        define('DOCXFOLDER_SERVER_URL', 'http://localhost:8080/static/files/');
+        break;
+
+    case DocxApiEnvironmentConstant::DEVELOPMENT :
+        define('DOCXFOLDER_SERVER_URL', 'http://test-rechtwijzer.modria.com:90/static/files/');
+        break;
+
+    case DocxApiEnvironmentConstant::CONF :
+        define('DOCXFOLDER_SERVER_URL', 'https://conf-rw-web.modria.com/static/files/');
+        break;
+
+    case DocxApiEnvironmentConstant::CONF_TEST :
+        define('DOCXFOLDER_SERVER_URL', 'http://localhost:8080/static/files/');
+        break;
+
+    case DocxApiEnvironmentConstant::SANDBOX :
+        define('DOCXFOLDER_SERVER_URL', 'https://sandbox-rechtwijzer.modria.com/static/files/');
+        break;
+}
+################################
+
+
+$docxFileFolderPath = generateRealPathDocxFileLocation();
+if( !file_exists($docxFileFolderPath) ) {
+    mkdir($docxFileFolderPath, 0777, true);
+}
+
+$docName = isset( $_POST['doc_name'] )
+            ? $_POST['doc_name']
+            : (isset($_GET['doc_name'])
+                ? $_GET['doc_name'] : '');
+                // : basename(__FILE__, '.php'));
+$html    = isset( $_POST['html_content'] )
+            ? $_POST['html_content']
+            : (isset($_GET['html_content'])
+                ? $_GET['html_content'] : '');
+                // : file_get_contents('mine.html'));
+// print_r($_POST);exit;
+$html = updateTheHtmlDataForDocx($html);
+// echo $html;exit;
+
+// include_once 'Sample_Header.php';
 // necessary code from Sample_Header.php
 ##########################################
-// require_once __DIR__ . '/../src/PhpWord/Autoloader.php';
+?>
 
-// date_default_timezone_set('UTC');
+<?php
+require_once __DIR__ . '/../src/PhpWord/Autoloader.php';
 
-// /**
-//  * Header file
-//  */
-// use PhpOffice\PhpWord\Autoloader;
-// use PhpOffice\PhpWord\Settings;
+date_default_timezone_set('UTC');
 
-// error_reporting(E_ALL);
-// define('CLI', (PHP_SAPI == 'cli') ? true : false);
-// define('EOL', CLI ? PHP_EOL : '<br />');
-// define('SCRIPT_FILENAME', basename($_SERVER['SCRIPT_FILENAME'], '.php'));
-// define('IS_INDEX', SCRIPT_FILENAME == 'index');
+/**
+ * Header file
+ */
+use PhpOffice\PhpWord\Autoloader;
+use PhpOffice\PhpWord\Settings;
 
-// Autoloader::register();
-// Settings::loadConfig();
+error_reporting(E_ALL);
+define('CLI', (PHP_SAPI == 'cli') ? true : false);
+define('EOL', CLI ? PHP_EOL : '<br />');
+define('SCRIPT_FILENAME', basename($_SERVER['SCRIPT_FILENAME'], '.php'));
+define('IS_INDEX', SCRIPT_FILENAME == 'index');
 
-// // Set writers
-// // $writers = array('Word2007' => 'docx', 'ODText' => 'odt', 'RTF' => 'rtf', 'HTML' => 'html', 'PDF' => 'pdf');
-// $writers = array('Word2007' => 'docx'); // only for word document
+Autoloader::register();
+Settings::loadConfig();
 
-// // Set PDF renderer
+// Set writers
+// $writers = array('Word2007' => 'docx', 'ODText' => 'odt', 'RTF' => 'rtf', 'HTML' => 'html', 'PDF' => 'pdf');
+$writers = array('Word2007' => 'docx'); // Onlt docx file generation
+
+// Set PDF renderer
 // if (null === Settings::getPdfRendererPath()) {
 //     $writers['PDF'] = null;
 // }
 
-// // Return to the caller script when runs by CLI
-// if (CLI) {
-//     return;
-// }
+// Return to the caller script when runs by CLI
+if (CLI) {
+    return;
+}
 
-// // Set titles and names
-// $pageHeading = str_replace('_', ' ', SCRIPT_FILENAME);
-// $pageTitle = IS_INDEX ? 'Welcome to ' : "{$pageHeading} - ";
-// $pageTitle .= 'PHPWord';
-// $pageHeading = IS_INDEX ? '' : "<h1>{$pageHeading}</h1>";
+// Set titles and names
+$pageHeading = str_replace('_', ' ', SCRIPT_FILENAME);
+$pageTitle = IS_INDEX ? 'Welcome to ' : "{$pageHeading} - ";
+$pageTitle .= 'PHPWord';
+$pageHeading = IS_INDEX ? '' : "<h1>{$pageHeading}</h1>";
 
-// // Populate samples
-// $files = '';
-// if ($handle = opendir('.')) {
-//     while (false !== ($file = readdir($handle))) {
-//         if (preg_match('/^Sample_\d+_/', $file)) {
-//             $name = str_replace('_', ' ', preg_replace('/(Sample_|\.php)/', '', $file));
-//             $files .= "<li><a href='{$file}'>{$name}</a></li>";
+// Populate samples
+$files = '';
+if ($handle = opendir('.')) {
+    while (false !== ($file = readdir($handle))) {
+        if (preg_match('/^Sample_\d+_/', $file)) {
+            $name = str_replace('_', ' ', preg_replace('/(Sample_|\.php)/', '', $file));
+            $files .= "<li><a href='{$file}'>{$name}</a></li>";
+        }
+    }
+    closedir($handle);
+}
+
+/**
+ * Write documents
+ *
+ * @param \PhpOffice\PhpWord\PhpWord $phpWord
+ * @param string $filename
+ * @param array $writers
+ *
+ * @return string
+ */
+function write($phpWord, $filename, $writers)
+{
+    // $result = '';
+    // Write documents
+    foreach ($writers as $format => $extension) {
+        // $result .= date('H:i:s') . " Write to {$format} format";
+        if (null !== $extension) {
+            // $targetFile = __DIR__ . "/results/{$filename}.{$extension}";
+            $targetFile = ( generateRealPathDocxFileLocation() ) . "{$filename}.{$extension}";
+            $phpWord->save($targetFile, $format);
+        } 
+        // else {
+        //     $result .= ' ... NOT DONE!';
+        // }
+        // $result .= EOL;
+    }
+
+    // $result .= getEndingNotes($writers);
+
+    // return $result;
+    return '';
+}
+
+/**
+ * Get ending notes
+ *
+ * @param array $writers
+ *
+ * @return string
+ */
+// function getEndingNotes($writers)
+// {
+//     $result = '';
+
+//     // Do not show execution time for index
+//     if (!IS_INDEX) {
+//         $result .= date('H:i:s') . " Done writing file(s)" . EOL;
+//         $result .= date('H:i:s') . " Peak memory usage: " . (memory_get_peak_usage(true) / 1024 / 1024) . " MB" . EOL;
+//     }
+
+//     // Return
+//     if (CLI) {
+//         $result .= 'The results are stored in the "results" subdirectory.' . EOL;
+//     } else {
+//         if (!IS_INDEX) {
+//             $types = array_values($writers);
+//             $result .= '<p>&nbsp;</p>';
+//             $result .= '<p>Results: ';
+//             foreach ($types as $type) {
+//                 if (!is_null($type)) {
+//                     $resultFile = FOLDER_PATH . SCRIPT_FILENAME . '.' . $type;
+//                     // $resultFile = 'results/' . SCRIPT_FILENAME . '.' . $type;
+//                     if (file_exists($resultFile)) {
+//                         $result .= "<a href='{$resultFile}' class='btn btn-primary'>{$type}</a> ";
+//                     }
+//                 }
+//             }
+//             $result .= '</p>';
 //         }
 //     }
-//     closedir($handle);
-// }
 
+//     return $result;
+// }
 
 
 ##############################################
@@ -72,7 +235,9 @@ $phpWord = new \PhpOffice\PhpWord\PhpWord();
 // $phpWord->addTitleStyle(2, array('size' => 14), array('numStyle' => 'hNum', 'numLevel' => 1));
 // $phpWord->addTitleStyle(3, array('size' => 12), array('numStyle' => 'hNum', 'numLevel' => 2));
 //-------------
-$phpWord->addTitleStyle(2, array('name'=>'Times New Roman', 'size'=>20, 'color'=>'000000','bold'=>true)); //h2
+$phpWord->addTitleStyle(2, array('name'=>'Times New Roman', 'size'=>18, 'color'=>'000000','bold'=>true)); //h2
+$phpWord->addTitleStyle(3, array('name'=>'Times New Roman', 'size'=>12, 'color'=>'000000','bold'=>true)); //h3
+$phpWord->addTitleStyle(4, array('name'=>'Times New Roman', 'size'=>12, 'color'=>'000000')); //h4
 
 $section = $phpWord->addSection();
 
@@ -122,11 +287,7 @@ $footer->addPreserveText(htmlspecialchars('Page {PAGE} of {NUMPAGES}.', ENT_COMP
 // 	$textrun->addText(htmlspecialchars($content, ENT_COMPAT, 'UTF-8'));
 // 	$section->addTextBreak(2);
 // }
-if( isset( $_POST['html_content'] ) ) {
-	$html = $_POST['html_content'];
-} else {
-	$html = file_get_contents('mine.html');
-}
+
 // echo $_POST['html_content'];exit;
 \PhpOffice\PhpWord\Shared\Html::addHtml($section, $html);
 
@@ -153,6 +314,8 @@ $addressSlip = [
 ];
 
 $section->addTextBreak(1);
+$section->addText('Aldus overeengekomen en ondertekend in viervoud,');
+$section->addTextBreak(1);
 
 $table = $section->addTable();
 for($r = 0; $r < count($addressSlip); $r++) { // Loop through rows
@@ -164,10 +327,11 @@ for($r = 0; $r < count($addressSlip); $r++) { // Loop through rows
 }
 //***********************************************
 
-$docName = basename(__FILE__, '.php');
+
 
 // Save file
-echo write($phpWord, $docName, $writers);
+// echo write($phpWord, $docName, $writers);
+write($phpWord, $docName, $writers);
 // if( isset( $_POST['doc_name'] ) ) {
 //     // echo saveFileByVar23($phpWord, $_POST['doc_name'], $writers);
 //     echo write($phpWord, basename(__FILE__, '.php'), $writers);
@@ -182,12 +346,39 @@ echo write($phpWord, $docName, $writers);
 // $phpWord = \PhpOffice\PhpWord\IOFactory::load($source);
 // // Save file
 // echo write($phpWord, basename(__FILE__, '.php'), $writers);
-if (!CLI) {
-    include_once 'Sample_Footer.php';
+
+/**
+ * Footer file
+ */
+if (CLI) {
+    return;
+}
+$docxFileStatus = lineBreakMSWordCompatibilityFix($docxFileFolderPath . $docName . '.docx' );
+deleteFolder($docxFileFolderPath . $docName);
+
+if ($docxFileStatus) {
+    $fileUrl =  DOCXFOLDER_SERVER_URL . ( generateDocxFileLocation() ) . $docName . '.docx';
+    $file = $docxFileFolderPath . $docName . '.docx';
+    // echo '<a href="' . $fileUrl . '">Download ' . $docName . '.docx</a>';
+
+    // header('Pragma: public');
+    // header('Expires: 0');
+    // header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    // header('Cache-Control: private', false); // required for certain browsers 
+    // header('Content-Type: application/docx');
+
+    // header('Content-Disposition: attachment; filename="'. basename($docName) . '";');
+    // header('Content-Transfer-Encoding: binary');
+    // header('Content-Length: ' . filesize($file));
+
+    // readfile($file);
+    echo $fileUrl;
+    // exit;
+
+} else {
+    echo false;
 }
 
-$theExtractedFolder = lineBreakMSWordCompatibilityFix('results/' . $docName . '.docx' );
-compressTheFolderToDocx('results/');
 
 /*
 1) avoid broken open and close tags
@@ -196,30 +387,6 @@ compressTheFolderToDocx('results/');
 4) 
 
 */
-
-// Same function as write() from sample_Header.php
-function saveFileByVar23($phpWord, $filename, $writers)
-{
-    // $result = '';
-
-    // Write documents
-    foreach ($writers as $format => $extension) {
-        // $result .= date('H:i:s') . " Write to {$format} format";
-        if (null !== $extension) {
-            $targetFile = __DIR__ . "/results/{$filename}.{$extension}";
-            $phpWord->save($targetFile, $format);
-        } else {
-            // $result .= ' ... NOT DONE!';
-        }
-        // $result .= EOL;
-    }
-
-    // $result .= getEndingNotes($writers);
-
-    // return $result;
-    return $filename;
-}
-
 
 function lineBreakMSWordCompatibilityFix($docName) {
     $zip = new ZipArchive;
@@ -236,18 +403,20 @@ function lineBreakMSWordCompatibilityFix($docName) {
         $documentXmlFile = $destFolder . '/word/document.xml';
         if( file_exists($documentXmlFile) ) {
             $file_contents = file_get_contents($documentXmlFile);
-            $file_contents = str_replace("#CRLF_BY_VAR23#","<w:br/>",$file_contents);
+            // $file_contents = str_replace(BR_TAG_INDICATOR ,"<w:br/>",$file_contents);
+            $brTagReplacementPattern = '$( )*' . BR_TAG_INDICATOR . '( )*$';
+            $file_contents = preg_replace($brTagReplacementPattern ,"<w:br/>",$file_contents);
+
             file_put_contents($documentXmlFile,$file_contents);      
         }
         
         // Recompressing the folder into .docx file
         $filename = basename($docName, '.docx');
        // Get real path for our folder
-        $rootPath = realpath('results/' . $filename);
+        $rootPath = realpath(( generateRealPathDocxFileLocation() ) . $filename);
         // Initialize archive object
         $zip = new ZipArchive();
-        $zip->open($filename  . '123.docx', ZipArchive::CREATE | ZipArchive::OVERWRITE);
-
+        $zip->open(( generateRealPathDocxFileLocation() ) . $filename  . '.docx', ZipArchive::CREATE | ZipArchive::OVERWRITE);
         // Create recursive directory iterator
         /** @var SplFileInfo[] $files */
         $files = new RecursiveIteratorIterator(
@@ -271,7 +440,7 @@ function lineBreakMSWordCompatibilityFix($docName) {
 
         // Zip archive will be created only after closing object
         $zip->close();
-
+        return TRUE;
 
     } else {
         echo  $docName . ' File extracition failed.';
@@ -301,8 +470,38 @@ function deleteFolder($path)
     return false;
 }
 
-function compressTheFolderToDocx($folderPath) {
-    $filname = rtrim($folderPath, '/') . 'docx';
-    $zip =  new ZipArchive();
-    $zip->open( $filname, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+// Work around phpword doesn't render html <br> tags
+function updateTheHtmlDataForDocx($htmlData) {
+    // Remove the address slip table, since we harcoding this data in Ms word
+    // *? is non-greedy regular expression stop at the first occurance of match
+    $htmlData =preg_replace('/<table style="height: 2554px; width: 700px; border: 0px; padding: 15px;">/', '<table>', $htmlData);
+    $replaceAddressSlipPatter = '/<tr>(\s)*<td>(\s)*<p>Aldus overeengekomen en ondertekend in viervoud,<\/p>(\s)*<table border="0" width="90%">[\s\S]*?<\/table>(\s)*<\/td>(\s)*<\/tr>/';
+    $htmlData =preg_replace($replaceAddressSlipPatter, '', $htmlData);
+
+    $brokenPTagReplacementPattern = '$<tr>(\s)*<td>(\s)*<\/p>(\s)*<\/td>(\s)*<\/tr>$';
+    $htmlData =preg_replace($brokenPTagReplacementPattern, '', $htmlData);
+
+    // Need to keep CR-LF to make line break compatable with unix
+    // BR_TAG_INDICATOR is use to replace this with <w:br/> later with lineBreakMSWordCompatibilityFix
+    $htmlData = str_ireplace([
+            '<br />',
+            '<br/>',
+            '<br>',
+        ], BR_TAG_INDICATOR . '&#xA;&#xD;', $htmlData);//&#xA;&#xD; - CR LF 
+    // $htmlData = str_ireplace('<table style="height: 2554px; width: 700px; border: 0px; padding: 15px;">', '<table>', $htmlData);
+    return $htmlData;
 }
+
+
+function generateDocxFileLocation() {
+    $today = date('d-m-Y',time());
+    return 'docx/' . $today . '/';
+}
+
+function generateRealPathDocxFileLocation() {
+    return FOLDER_PATH . generateDocxFileLocation();
+}
+
+
+
